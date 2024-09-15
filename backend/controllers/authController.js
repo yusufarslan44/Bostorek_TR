@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const { checkValidationErrors } = require("../utils");
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 const register = async (req, res) => {
     try {
         const { email } = req.body
@@ -39,17 +41,35 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'The Password incorret' })
         }
 
+        //Create Token
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.SECRET_KEY, { expiresIn: '1h' });
+
+
+
         user.password = undefined
         return res
             .status(200)
-            .json({ message: 'User logged in successfully', user })
+            .json({ message: 'User logged in successfully', user, token })
     } catch (error) {
         console.error("Erorr at login", error)
         return res.status(500).json({ error: 'Internal Server error' })
     }
 }
 
+
+const getProtectedData = (req, res) => {
+    res.json({ message: 'Protected data', user: req.user });
+};
+const getUser = async (req, res) => {
+    const id = req.user.id; // authenticateToken middleware'den gelen kullanıcı bilgisi
+    const user = await User.findById(id)
+    user.password = null
+    res.json(user);
+}
+
 module.exports = {
     register,
-    login
+    login,
+    getProtectedData,
+    getUser
 }

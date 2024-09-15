@@ -6,6 +6,7 @@ import LoginView from "@/views/LoginView.vue"
 import RegisterView from "@/views/RegisterView.vue"
 import BookDetailView from "@/components/BookDetailView.vue"
 import DashboardView from "@/views/DashboardView.vue"
+import { useAuthStore } from "@/stores/authStore"
 
 const router = createRouter({
     history: createWebHistory(),
@@ -48,4 +49,18 @@ const router = createRouter({
     ],
     linkActiveClass: 'active-link'
 })
+
+router.beforeEach((to, from, next) => {
+
+    const authStore = useAuthStore();
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!authStore.token) {
+            next({ name: 'login' });
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
 export default router;

@@ -6,6 +6,7 @@
 </template>
 
 <script>
+
 import SectionHeader from "@/components/SectionHeader.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { mapState } from "pinia";
@@ -13,8 +14,14 @@ export default {
     name: 'DashboardView',
 
     computed: {
-        ...mapState(useAuthStore, ['user'])
-    }
+        ...mapState(useAuthStore, ['user']),
+
+
+    },
+
+
+
+
 }
 </script>
 

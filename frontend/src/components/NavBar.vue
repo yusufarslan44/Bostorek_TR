@@ -6,16 +6,16 @@
         <li class="nav-item">
           <RouterLink class="nav-link" :to="{ name: 'books' }">Books</RouterLink>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="isAuthenticated">
           <RouterLink class="nav-link" :to="{ name: 'dashboard' }">Dashboard</RouterLink>
         </li>
         <li class="nav-item">
           <RouterLink class="nav-link" :to="{ name: 'contact' }">Contact Us</RouterLink>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="!isAuthenticated">
           <RouterLink class="nav-link" :to="{ name: 'login' }">Login</RouterLink>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="!isAuthenticated">
           <RouterLink class="nav-link" :to="{ name: 'register' }">Register</RouterLink>
         </li>
       </ul>
@@ -24,8 +24,16 @@
 </template>
 
 <script>
+
+import { useAuthStore } from "@/stores/authStore";
+import { mapState } from "pinia"; // Pinia'nın map fonksiyonları
+
 export default {
   name: "NavBar",
+  computed: {
+    ...mapState(useAuthStore, ['isAuthenticated']),
+
+  }
 };
 </script>
 
