@@ -18,6 +18,9 @@
         <li class="nav-item" v-if="!isAuthenticated">
           <RouterLink class="nav-link" :to="{ name: 'register' }">Register</RouterLink>
         </li>
+        <li class="nav-item" v-if="isAuthenticated">
+          <button class="nav-link" @click="logoutUser">Logout</button>
+        </li>
       </ul>
     </div>
   </nav>
@@ -26,13 +29,19 @@
 <script>
 
 import { useAuthStore } from "@/stores/authStore";
-import { mapState } from "pinia"; // Pinia'nın map fonksiyonları
+import { mapActions, mapState } from "pinia"; // Pinia'nın map fonksiyonları
 
 export default {
   name: "NavBar",
   computed: {
     ...mapState(useAuthStore, ['isAuthenticated']),
 
+  },
+  methods: {
+    ...mapActions(useAuthStore, ["logout"]),
+    logoutUser() {
+      this.logout()
+    }
   }
 };
 </script>

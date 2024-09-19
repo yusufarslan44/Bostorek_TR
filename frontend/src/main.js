@@ -7,6 +7,9 @@ import { useBookStore } from "@/stores/bookStore";
 import { useAuthStore } from "@/stores/authStore";
 import App from '@/App.vue';
 
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
+
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
 
@@ -22,14 +25,6 @@ library.add(faArrowLeft, faThumbsUp)
 
 const pinia = createPinia();
 
-// const storedToken = localStorage.getItem('token')
-// // const storedUser = localStorage.getItem('user')
-// if (storedToken) {
-//     useAuthStore(pinia).token = storedToken
-//     // const userData = JSON.parse(storedUser)
-//     // console.log(userData);
-//     // useAuthStore(pinia).user = userData
-// }
 
 const authStore = useAuthStore(pinia);
 authStore.loadToken();
@@ -41,6 +36,7 @@ bookStore.fetchBooks().then(() => {
         .use(pinia)
         .use(router)
         .component('font-awesome-icon', FontAwesomeIcon)
+        .use(Toast)
         .mount('#app')
 })
 
