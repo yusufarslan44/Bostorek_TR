@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const bookRoute = require('./routes/bookRoute');
 const authRoute = require('./routes/authRoute')
+const userRoute = require('./routes/userRoute')
 const cors = require('cors');
 const app = express();
 const port = 3000;
@@ -16,6 +17,7 @@ app.use(cors(corsOptions))
 
 app.use('/api/v1/books', bookRoute)
 app.use('/api/v1/auth', authRoute)
+app.use('/api/v1/user', userRoute)
 
 try {
     connectDB();

@@ -5,14 +5,22 @@ const { isValidİd, findDocumentById, checkValidationErrors } = require("../util
 const createBook = async (req, res) => {
     try {
 
-        const { title, author } = req.body;
-        const existingBook = await Book.findOne({ title, author })
+        const { title, author, description, pageNumber } = req.body;
 
+        const uploader = req.user.id
+
+        const existingBook = await Book.findOne({ title, author })
         if (existingBook) {
             return res.status(400).json({ error: "A book with same title and author already exist!" })
         }
 
-        const newBook = await Book.create(req.body)
+        const newBook = await Book.create({
+            title,
+            author,
+            description,
+            pageNumber,
+            uploader
+        })
         return res
             .status(201)
             .json({ message: "Book Created successfully ", book: newBook })
@@ -52,8 +60,16 @@ const getABook = async (req, res) => {
         console.error("Erorr at not find a books", error)
         return res.status(500).json({ error: 'Internal Server error' })
     }
-
-
+}
+const getBooksByUploader = async (req, res) => {
+    try {
+        const uploaderId = req.user.id;
+        const books = await Book.find({ uploader: uploaderId })
+        res.status(200).json(books)
+    } catch (error) {
+        console.error("Erorr at not get books by uploader", error)
+        return res.status(500).json({ error: 'Internal Server error' })
+    }
 }
 
 const updateBook = async (req, res) => {
@@ -106,4 +122,5 @@ module.exports = {
     updateBook,
     getABook,
     deleteBook,
+    getBooksByUploader,
 }

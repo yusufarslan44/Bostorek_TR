@@ -60,16 +60,9 @@ const login = async (req, res) => {
 const getProtectedData = (req, res) => {
     res.json({ message: 'Protected data', user: req.user });
 };
-const getUser = async (req, res) => {
-    const id = req.user.id; // authenticateToken middleware'den gelen kullanıcı bilgisi
-    const user = await User.findById(id)
-    user.password = null
-    res.json(user);
-}
 
 module.exports = {
     register,
     login,
     getProtectedData,
-    getUser
 }

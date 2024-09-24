@@ -63,6 +63,7 @@ export default {
 
 .circleclass {
   min-width: 42px;
+  min-height: 42px;
   display: flex;
   justify-content: center;
 }

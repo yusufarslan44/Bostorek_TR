@@ -7,7 +7,6 @@ const authenticateToken = async (req, res, next) => {
     try {
         const token = req.headers['authorization'];
         if (!token) return res.sendStatus(403);
-
         jwt.verify(token.split(' ')[1], jwtKey, (err, user) => {
             if (err) return res.sendStatus(403);
             req.user = user;

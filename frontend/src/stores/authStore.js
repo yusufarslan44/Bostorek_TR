@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('authStore', {
                 this.user = response.data.user
                 this.token = response.data.token
                 localStorage.setItem('token', this.token)
-                axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
             } catch (error) {
                 throw error.response.data
             }
@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('authStore', {
         },
         async fetchUser() {
             try {
-                const response = await axios.get('http://localhost:3000/api/v1/auth/user');
+                const response = await axios.get('http://localhost:3000/api/v1/user/users');
                 this.user = response.data;
             } catch (error) {
                 console.error("fetchUser Error: ", error);

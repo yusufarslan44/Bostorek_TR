@@ -4,7 +4,7 @@
       <div class="d-flex justify-content-center">
         <h1 class="display-3">Register</h1>
       </div>
-      <form @submit.prevent="submitForm">
+      <form @submit.prevent="submitForm()">
         <div v-if="showGenericWarningMessage" class="text-center">
           <span class="text-danger small">Something happend please try again later ! </span>
         </div>
