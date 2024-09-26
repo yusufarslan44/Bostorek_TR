@@ -40,9 +40,17 @@ export const useBookStore = defineStore('bookStore', {
                 const response = await axios.post('http://localhost:3000/api/v1/books/', newBook)
                 this.books.push(response.data.book)
             } catch (error) {
-                console.error("addNewBook Erorr : ", error)
+                throw error.response.data
             }
         },
+        async deleteTheBook(bookId) {
+            try {
+                await axios.delete(`http://localhost:3000/api/v1/books/${bookId}`)
+                this.books = this.books.filter(book => book._id !== bookId)
+            } catch (error) {
+                throw error.response.data
+            }
+        }
 
     }
 })

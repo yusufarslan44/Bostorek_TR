@@ -20,26 +20,24 @@
                         <th class="text-center">Delete</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <TransitionGroup name="list">
-                        <tr v-for="book in userBooks" :key="book._id">
-                            <td>{{ book.title }}</td>
-                            <td>{{ book.author }}</td>
-                            <td style="max-width: 250px">
-                                {{ book.description }}
-                            </td>
-                            <td>{{ book.pageNumber }}</td>
-                            <td class="text-center">
-                                <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
-                                    style="cursor: pointer" />
-                            </td>
-                            <td class="text-center">
-                                <font-awesome-icon :icon="['fas', 'trash']" class="text-danger" style="cursor: pointer"
-                                    @click="deleteBook(book._id)" />
-                            </td>
-                        </tr>
-                    </TransitionGroup>
-                </tbody>
+                <TransitionGroup name="list" tag="tbody">
+                    <tr v-for="book in userBooks" :key="book._id">
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td style="max-width: 250px">
+                            {{ book.description }}
+                        </td>
+                        <td>{{ book.pageNumber }}</td>
+                        <td class="text-center">
+                            <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
+                                style="cursor: pointer" />
+                        </td>
+                        <td class="text-center">
+                            <font-awesome-icon :icon="['fas', 'trash']" class="text-danger" style="cursor: pointer"
+                                @click="deleteBook(book._id, book.title)" />
+                        </td>
+                    </tr>
+                </TransitionGroup>
             </table>
         </div>
     </div>
@@ -99,7 +97,7 @@ import { useBookStore } from "@/stores/bookStore";
 import { mapActions, mapState } from "pinia";
 import { Modal } from 'bootstrap';
 import { useToast } from "vue-toastification";
-import { TransitionGroup } from "vue";
+
 export default {
     name: "DashboardBooks",
     data() {
@@ -120,8 +118,29 @@ export default {
         this.modal = new Modal(this.$refs.addEditModal)
     },
     methods: {
-        ...mapActions(useBookStore, ['addNewBook', "fetchBooksByUploader"]),
+        ...mapActions(useBookStore, ['addNewBook', "fetchBooksByUploader", "deleteTheBook"]),
 
+        showToast(message, options) {
+            const toast = useToast()
+
+            toast(message, {
+                position: "top-right",
+                closeButton: "button",
+                icon: true,
+                rtl: false,
+                ...options,
+            })
+        },
+        async deleteBook(bookId, bookTitle) {
+            try {
+                await this.deleteTheBook(bookId)
+
+                await this.fetchBooksByUploader()
+                this.showToast(`${bookTitle} deleted succesfully`, { type: 'warning', timeout: 3000 })
+            } catch (error) {
+                console.log("deleteBook error", error);
+            }
+        },
         async addBook() {
             try {
                 await this.addNewBook(this.newBook)
@@ -132,16 +151,9 @@ export default {
                     description: '',
                     pageNumber: null
                 }
-
                 await this.fetchBooksByUploader()
-                const toast = useToast()
-                toast.success('New book added successfully', {
-                    position: "top-right",
-                    timeout: 2000,
-                    closeButton: "button",
-                    icon: true,
-                    rtl: false
-                });
+                this.showToast('New book added successfully', { type: 'success', timeout: 2000 })
+
             } catch (error) {
                 console.log("addBook error", error);
             }
@@ -165,6 +177,7 @@ export default {
     min-width: 120px;
 }
 
+.list-move,
 .list-enter-active,
 .list-leave-active {
     transition: all 2s ease;
@@ -174,5 +187,9 @@ export default {
 .list-leave-to {
     opacity: 0;
     transform: translateX(300px);
+}
+
+.list-leave-active {
+    position: absolute;
 }
 </style>
