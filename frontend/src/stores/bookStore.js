@@ -43,6 +43,23 @@ export const useBookStore = defineStore('bookStore', {
                 throw error.response.data
             }
         },
+        async editTheBook(bookId, bookData) {
+            try {
+                const response = await axios.put(`http://localhost:3000/api/v1/books/${bookId}`, bookData)
+                const updatedBookData = response.data.book
+                const bookIndex = this.books.findIndex((book => book._id = bookId))
+
+
+                if (bookIndex !== -1) {
+                    this.books.splice(bookIndex, 1, updatedBookData)
+                }
+
+
+            } catch (error) {
+                console.log(error);
+                throw error.response.data
+            }
+        },
         async deleteTheBook(bookId) {
             try {
                 await axios.delete(`http://localhost:3000/api/v1/books/${bookId}`)

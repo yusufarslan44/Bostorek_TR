@@ -2,7 +2,7 @@
     <!-- Button -->
     <div class="row mb-3">
         <div class="col text-end">
-            <button type="button" class="btn btn-primary" @click="modal.show">Add Book</button>
+            <button type="button" class="btn btn-primary" @click="openAddModal()">Add Book</button>
         </div>
     </div>
 
@@ -30,7 +30,7 @@
                         <td>{{ book.pageNumber }}</td>
                         <td class="text-center">
                             <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
-                                style="cursor: pointer" />
+                                style="cursor: pointer" @click="openEditModal(book)" />
                         </td>
                         <td class="text-center">
                             <font-awesome-icon :icon="['fas', 'trash']" class="text-danger" style="cursor: pointer"
@@ -47,7 +47,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addModalLabel">Add Book</h5>
+                    <h5 class="modal-title" id="addModalLabel">{{ modalTitle }}</h5>
                     <button type="button" @click="modal.hide()" class="btn-close" aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-5">
@@ -56,34 +56,34 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control" id="title" name="title" required
-                            v-model="newBook.title" />
+                            v-model="bookData.title" />
                     </div>
                     <div class="col mb-3">
                         <label for="author" class="form-label">Author
                             <span class="text-danger">*</span>
                         </label>
                         <input type="text" class="form-control" id="author" name="author" required
-                            v-model="newBook.author" />
+                            v-model="bookData.author" />
                     </div>
                     <div class="col mb-3">
                         <label for="description" class="form-label">Description
                             <span class="text-danger">*</span>
                         </label>
                         <textarea name="description" id="description" class="form-control" cols="30" rows="10"
-                            v-model="newBook.description"></textarea>
+                            v-model="bookData.description"></textarea>
                     </div>
                     <div class="col mb-3">
                         <label for="author" class="form-label">Number of Pages
                             <span class="text-danger">*</span>
                         </label>
                         <input type="number" class="form-control" id="numOfPages" name="numOfPages" required
-                            v-model="newBook.pageNumber" />
+                            v-model="bookData.pageNumber" />
                     </div>
                     <div class="text-end mb-4">
                         <button type="button" @click="modal.hide()" class="btn btn-outline-secondary">
                             Close
                         </button>
-                        <button @click="addBook" type="button" class="btn btn-primary">Save</button>
+                        <button @click="saveBook()" type="button" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </div>
@@ -103,12 +103,13 @@ export default {
     data() {
         return {
             modal: null,
-            newBook: {
+            bookData: {
                 title: '',
                 author: '',
                 description: '',
                 pageNumber: null
-            }
+            },
+            modalTitle: 'Add Book'
         }
     },
     created() {
@@ -118,7 +119,7 @@ export default {
         this.modal = new Modal(this.$refs.addEditModal)
     },
     methods: {
-        ...mapActions(useBookStore, ['addNewBook', "fetchBooksByUploader", "deleteTheBook"]),
+        ...mapActions(useBookStore, ["addNewBook", "fetchBooksByUploader", "deleteTheBook", "editTheBook"]),
 
         showToast(message, options) {
             const toast = useToast()
@@ -143,9 +144,9 @@ export default {
         },
         async addBook() {
             try {
-                await this.addNewBook(this.newBook)
+                await this.addNewBook(this.bookData)
                 this.modal.hide();
-                this.newBook = {
+                this.bookData = {
                     title: '',
                     author: '',
                     description: '',
@@ -157,6 +158,47 @@ export default {
             } catch (error) {
                 console.log("addBook error", error);
             }
+        },
+        openEditModal(existingBook) {
+            this.modalTitle = 'Edit Book'
+            this.editBookId = existingBook._id
+            this.bookData = {
+                title: existingBook.title,
+                author: existingBook.author,
+                description: existingBook.description,
+                pageNumber: existingBook.pageNumber
+            }
+            this.modal.show()
+        },
+        saveBook() {
+            if (this.modalTitle === 'Add Book') {
+                this.addBook()
+
+            } else {
+                this.editBook()
+            }
+
+        },
+        async editBook() {
+            try {
+                await this.editTheBook(this.editBookId, this.bookData)
+                await this.fetchBooksByUploader();
+                this.modal.hide();
+                this.showToast("The book edited succesfully", { type: 'success', timeout: 3000 })
+
+            } catch (error) {
+                console.log("editBook error", error);
+            }
+        },
+        openAddModal() {
+            this.modalTitle = "Add Book"
+            this.bookData = {
+                title: '',
+                author: '',
+                description: '',
+                pageNumber: null
+            }
+            this.modal.show()
         }
     },
     computed: {

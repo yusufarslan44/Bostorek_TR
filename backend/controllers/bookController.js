@@ -74,7 +74,7 @@ const getBooksByUploader = async (req, res) => {
 
 const updateBook = async (req, res) => {
     const { id } = req.params;
-    const { title, author, description, pageNumber, rating } = req.body;
+    const { title, author, description, pageNumber } = req.body;
 
 
     if (isValidİd(id, res)) return;
@@ -87,11 +87,11 @@ const updateBook = async (req, res) => {
         book.author = author || book.title;
         book.description = description || book.description;
         book.pageNumber = pageNumber || book.pageNumber;
-        book.rating = rating || book.rating;
+
 
         await book.save();
 
-        res.status(200).json({ message: 'The book udated successfully' })
+        res.status(200).json({ message: 'The book udated successfully', book })
 
     } catch (error) {
         console.error("Erorr at not updateABook", error)
