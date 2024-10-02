@@ -7,11 +7,12 @@
                @click="goToBackBooks" />
             <div class="row mb-4">
                <div class="col-lg-6">
-                  <img class="card-img-top" src="../../template/images/b_detail.jpg" alt="">
+                  <img class="card-img-top" :src="book.url" alt="">
                </div>
 
                <div class="col-lg-6 details-wrapper">
                   <p class="lead description">
+
                      {{ book.description }}
                   </p>
                   <div class="mb-4">
@@ -93,7 +94,7 @@ export default {
    data() {
       return {
          book: null,
-         loading: true
+         loading: true,
       }
    },
    created() {

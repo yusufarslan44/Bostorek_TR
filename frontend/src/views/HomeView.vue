@@ -12,14 +12,13 @@
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <TransitionGroup v-else name="fade" tag="div" class="card-wrapper container-sm d-flex justify-content-around">
+          <TransitionGroup v-else :name="transitionName" tag="div"
+            class="card-wrapper container-sm d-flex justify-content-around">
             <div v-for="(book, index) in filteredBooks" :key="book._id || index" class="card" style="width: 18rem;">
               <img src="../../../template/images/b_detail.jpg" class="card-img-top" alt="...">
               <div class="card-body">
                 <h5 class="card-title">{{ book.title }}</h5>
-                <p class="card-text">{{ book.description }}</p>
-                <p class="card-text"><small class="text-body-secondary">{{ book.updatedAt
-                    }}</small></p>
+                <p class="card-text">{{ book.description.slice(0, 70) + "..." }}</p>
               </div>
             </div>
           </TransitionGroup>
@@ -62,16 +61,18 @@ export default {
         { imageUrl: hero_3, subtitle: 'Fraternite', title: 'Neque Porro Quisquam Est', description: 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' }
       ],
       currentStartIndex: 0,
-
+      transitionName: "moveN"
     }
   },
   methods: {
     nextBooks() {
+      this.transitionName = 'moveN'
       if (this.currentStartIndex + 4 < this.books.length) {
         this.currentStartIndex += 4;
       }
     },
     prevBooks() {
+      this.transitionName = 'moveP'
       if (this.currentStartIndex - 4 >= 0) {
         this.currentStartIndex -= 4;
       }
@@ -95,6 +96,11 @@ export default {
 </script>
 
 <style scoped>
+.card {
+  max-height: 520px;
+  min-height: 480px;
+}
+
 .custom-button {
   background-color: var(--primary-color);
   height: 50px;
@@ -113,21 +119,50 @@ export default {
   background-image: linear-gradient(to right, rgb(0, 0, 0), rgb(255, 255, 255)100%)
 }
 
-
-
 .card-image {
   height: 270px;
 }
 
-.fade-enter-from {
-  opacity: 0.2;
+.moveN-move,
+.moveN-enter-active {
+  transition: all 1s cubic-bezier(0.77, 0, 0.175, 1);
+  ;
 }
 
-.fade-enter-to {
-  opacity: 1;
+.moveN-leave-active {
+  transition: all 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+  ;
 }
 
-.fade-enter-active {
-  transition: all 1s ease;
+.moveN-enter-from,
+.moveN-leave-to {
+  opacity: 0;
+  transform: translateX(700px);
+}
+
+.moveN-leave-active {
+  position: absolute;
+}
+
+
+.moveP-move,
+.moveP-enter-active {
+  transition: all 1s cubic-bezier(0.77, 0, 0.175, 1);
+  ;
+}
+
+.moveP-leave-active {
+  transition: all 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+  ;
+}
+
+.moveP-enter-from,
+.moveP-leave-to {
+  opacity: 0;
+  transform: translateX(-700px);
+}
+
+.moveP-leave-active {
+  position: absolute;
 }
 </style>

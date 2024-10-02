@@ -30,7 +30,6 @@
 <script>
 import DashboardGeneral from '@/components/dashboard/DashboardGeneral.vue';
 import DashboradBooks from '@/components/dashboard/DashboradBooks.vue';
-
 export default {
    name: 'DashboardView',
    components: {

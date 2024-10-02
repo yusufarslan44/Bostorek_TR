@@ -50,40 +50,56 @@
                     <h5 class="modal-title" id="addModalLabel">{{ modalTitle }}</h5>
                     <button type="button" @click="modal.hide()" class="btn-close" aria-label="Close"></button>
                 </div>
+
                 <div class="modal-body mx-5">
-                    <div class="col mb-3">
-                        <label for="title" class="form-label">Title
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="title" name="title" required
-                            v-model="bookData.title" />
+                    <div class="d-flex justify-content-center" v-if="isLoading">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
-                    <div class="col mb-3">
-                        <label for="author" class="form-label">Author
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="author" name="author" required
-                            v-model="bookData.author" />
-                    </div>
-                    <div class="col mb-3">
-                        <label for="description" class="form-label">Description
-                            <span class="text-danger">*</span>
-                        </label>
-                        <textarea name="description" id="description" class="form-control" cols="30" rows="10"
-                            v-model="bookData.description"></textarea>
-                    </div>
-                    <div class="col mb-3">
-                        <label for="author" class="form-label">Number of Pages
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input type="number" class="form-control" id="numOfPages" name="numOfPages" required
-                            v-model="bookData.pageNumber" />
-                    </div>
-                    <div class="text-end mb-4">
-                        <button type="button" @click="modal.hide()" class="btn btn-outline-secondary">
-                            Close
-                        </button>
-                        <button @click="saveBook()" type="button" class="btn btn-primary">Save</button>
+                    <div v-else>
+                        <div class="col mb-3">
+                            <label for="title" class="form-label">Title
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                v-model="bookData.title" />
+                        </div>
+                        <div class="col mb-3">
+                            <label for="author" class="form-label">Author
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="author" name="author" required
+                                v-model="bookData.author" />
+                        </div>
+                        <div class="col mb-3">
+                            <label for="description" class="form-label">Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" id="description" class="form-control" cols="30" rows="10"
+                                v-model="bookData.description"></textarea>
+                        </div>
+                        <div class="col mb-3">
+                            <label for="author" class="form-label">Number of Pages
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="numOfPages" name="numOfPages" required
+                                v-model="bookData.pageNumber" />
+                        </div>
+
+                        <div class="col mb-3">
+                            <label for="author" class="form-label">Photo
+                                <!-- <span class="text-danger"></span> -->
+                            </label>
+                            <input type="file" class="form-control form-control-lg" id="image" name="image" required
+                                @change="handleFileUpload" />
+                        </div>
+                        <div class="text-end mb-4">
+                            <button type="button" @click="modal.hide()" class="btn btn-outline-secondary">
+                                Close
+                            </button>
+                            <button @click="saveBook()" type="button" class="btn btn-primary">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,6 +114,7 @@ import { mapActions, mapState } from "pinia";
 import { Modal } from 'bootstrap';
 import { useToast } from "vue-toastification";
 
+
 export default {
     name: "DashboardBooks",
     data() {
@@ -107,9 +124,10 @@ export default {
                 title: '',
                 author: '',
                 description: '',
-                pageNumber: null
+                pageNumber: null,
+                image: null
             },
-            modalTitle: 'Add Book'
+            modalTitle: 'Add Book',
         }
     },
     created() {
@@ -120,7 +138,11 @@ export default {
     },
     methods: {
         ...mapActions(useBookStore, ["addNewBook", "fetchBooksByUploader", "deleteTheBook", "editTheBook"]),
-
+        handleFileUpload(event) {
+            console.log("event yakaladık", event.target.files[0]);
+            const file = event.target.files[0];
+            this.bookData.image = file;
+        },
         showToast(message, options) {
             const toast = useToast()
 
@@ -144,16 +166,25 @@ export default {
         },
         async addBook() {
             try {
-                await this.addNewBook(this.bookData)
+                const formData = new FormData();
+                formData.append('title', this.bookData.title);
+                formData.append('author', this.bookData.author);
+                formData.append('description', this.bookData.description);
+                formData.append('pageNumber', this.bookData.pageNumber);
+                formData.append('image', this.bookData.image)
+                console.log("form data böyle ", formData);
+                await this.addNewBook(formData);
+                console.log("book data", this.bookData);
                 this.modal.hide();
                 this.bookData = {
                     title: '',
                     author: '',
                     description: '',
-                    pageNumber: null
+                    pageNumber: null,
+                    image: null
                 }
-                await this.fetchBooksByUploader()
-                this.showToast('New book added successfully', { type: 'success', timeout: 2000 })
+                await this.fetchBooksByUploader();
+                this.showToast('New book added successfully', { type: 'success', timeout: 2000 });
 
             } catch (error) {
                 console.log("addBook error", error);
@@ -162,12 +193,17 @@ export default {
         openEditModal(existingBook) {
             this.modalTitle = 'Edit Book'
             this.editBookId = existingBook._id
+            console.log("existing Book", existingBook);
+
             this.bookData = {
                 title: existingBook.title,
                 author: existingBook.author,
                 description: existingBook.description,
-                pageNumber: existingBook.pageNumber
-            }
+                pageNumber: existingBook.pageNumber,
+                image: existingBook.image
+            };
+
+
             this.modal.show()
         },
         saveBook() {
@@ -181,7 +217,14 @@ export default {
         },
         async editBook() {
             try {
-                await this.editTheBook(this.editBookId, this.bookData)
+                const editedData = new FormData();
+                editedData.append('title', this.bookData.title);
+                editedData.append('author', this.bookData.author);
+                editedData.append('description', this.bookData.description);
+                editedData.append('pageNumber', this.bookData.pageNumber);
+                editedData.append('image', this.bookData.image)
+
+                await this.editTheBook(this.editBookId, editedData)
                 await this.fetchBooksByUploader();
                 this.modal.hide();
                 this.showToast("The book edited succesfully", { type: 'success', timeout: 3000 })
@@ -202,7 +245,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(useBookStore, ['userUploadedBooks']),
+        ...mapState(useBookStore, ['userUploadedBooks', 'isLoading']),
         userBooks() {
             return this.userUploadedBooks.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         }
@@ -212,6 +255,14 @@ export default {
 </script>
 
 <style scoped>
+.spinner-border {
+    margin-top: 60%;
+}
+
+.modal-content {
+    min-height: 648px;
+}
+
 .btn-outline-secondary {
     border-radius: 25px;
     height: 48px;
